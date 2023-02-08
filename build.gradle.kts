@@ -22,10 +22,6 @@ val modVersion: String by parentProps
 val group: String by parentProps
 val minecraftVersion: String by parentProps
 
-base {
-    archivesBaseName = modId
-}
-
 project.group = group
 version = modVersion
 
@@ -37,9 +33,6 @@ repositories {
     mavenCentral()
     maven("https://jitpack.io")
     maven("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/")
-}
-
-minecraft {
 }
 
 dependencies {

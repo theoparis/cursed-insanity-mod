@@ -2,9 +2,8 @@ version: 2
 jobs:
   build:
     docker:
-      - image: gradle:jdk18-alpine
+      - image: gradle:jdk19-alpine
     steps:
-      #- run: apk add --no-cache git gradle && git config --global --add safe.directory /tmp/_circleci_local_build_repo
       - checkout
       - run: gradle build
       - store_artifacts:
