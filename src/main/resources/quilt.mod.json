@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "quilt_loader": {
+    "group": "com.theoparis.cw",
+    "id": "cursedweirdos",
+    "version": "${version}",
+    "metadata": {
+      "name": "Cursed Insanity",
+      "description": "Ah yes.",
+      "contributors": {
+        "Theo Paris": "Owner"
+      },
+      "contact": {
+        "homepage": "https://mods.flowtr.dev/",
+        "sources": "https://github.com/theoparis/cursed-insanity-mod"
+      },
+      "icon": "assets/cursedweirdos/icon.png"
+    },
+    "intermediate_mappings": "net.fabricmc:intermediary",
+    "entrypoints": {
+      "init": {
+        "adapter": "kotlin",
+        "value": "com.theoparis.cw.CursedWeirdosMod"
+      },
+      "client_init": {
+        "adapter": "kotlin",
+        "value": "com.theoparis.cw.CursedWeirdosClient"
+      }
+    },
+    "depends": [
+      {
+        "id": "quilt_loader",
+        "versions": ">=0.17.0-"
+      },
+      {
+        "id": "quilted_fabric_api",
+        "versions": ">=4.0.0-"
+      },
+      {
+        "id": "qkl",
+        "versions": ">=0.1.4-"
+      },
+      {
+        "id": "minecraft",
+        "versions": ">=1.19.2"
+      }
+    ]
+  }
+}

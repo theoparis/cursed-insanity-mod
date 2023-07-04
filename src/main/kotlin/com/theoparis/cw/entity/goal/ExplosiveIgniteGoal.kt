@@ -1,6 +1,6 @@
 package com.theoparis.cw.entity.goal
 
-import com.theoparis.cw.entity.util.IExplosiveEntity
+import com.theoparis.cw.entity.util.ExplosiveEntity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.ai.goal.Goal
 import net.minecraft.entity.mob.MobEntity
@@ -8,7 +8,7 @@ import java.util.*
 
 class ExplosiveIgniteGoal(private val entity: MobEntity) : Goal() {
     private var target: LivingEntity? = null
-    private var explosiveEntity: IExplosiveEntity
+    private var explosiveEntity: ExplosiveEntity
 
     override fun canStart(): Boolean {
         val livingEntity = entity.target
@@ -22,7 +22,7 @@ class ExplosiveIgniteGoal(private val entity: MobEntity) : Goal() {
     }
 
     init {
-        require(entity is IExplosiveEntity) {
+        require(entity is ExplosiveEntity) {
             "${entity.uuid} must be an instance of IExplosiveEntity!"
         }
         explosiveEntity = entity
