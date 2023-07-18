@@ -1,13 +1,13 @@
-import java.util.Properties
+import java.util.*
 
 plugins {
     kotlin("jvm") version "1.8.22"
-    id("fabric-loom") version "1.3.5"
+    id("org.quiltmc.loom") version "1.+"
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_19
+    targetCompatibility = JavaVersion.VERSION_19
 }
 
 // load props from parent project
@@ -29,6 +29,7 @@ repositories {
     maven("https://maven.fabricmc.net/") {
         name = "Fabric"
     }
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
     mavenLocal()
     mavenCentral()
     maven("https://jitpack.io")
@@ -36,13 +37,15 @@ repositories {
 }
 
 dependencies {
-    minecraft(group = "com.mojang", name = "minecraft", version = minecraftVersion)
-    mappings(group = "net.fabricmc", name = "yarn", version = minecraftVersion + "+build.22", classifier = "v2")
+    minecraft("com.mojang:minecraft:1.20.1")
+    mappings("org.quiltmc:quilt-mappings:1.20.1+build.9:intermediary-v2")
 
-    modImplementation("net.fabricmc:fabric-loader:0.14.21")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:0.85.0+1.20.1")
-    modImplementation("net.fabricmc:fabric-language-kotlin:1.9.6+kotlin.1.8.22")
-    modImplementation("software.bernie.geckolib:geckolib-fabric-1.18:3.0.93")
+    modImplementation("org.quiltmc:qsl:6.0.4+1.20.1")
+    modImplementation("org.quiltmc.quilted-fabric-api:quilted-fabric-api:7.0.5+0.84.0-1.20.1")
+    modImplementation("org.quiltmc:quilt-loader:0.20.0-beta.1")
+    modImplementation("org.quiltmc.quilt-kotlin-libraries:quilt-kotlin-libraries:2.1.0+kt.1.8.22+flk.1.9.4")
+
+    modImplementation("software.bernie.geckolib:geckolib-fabric-1.20:4.2")
 }
 
 val fabricApiVersion = ""

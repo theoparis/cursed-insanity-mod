@@ -1,66 +1,46 @@
 package com.theoparis.cw.entity.render.base
 
-import net.minecraft.client.render.VertexConsumer
 import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.render.entity.EntityRendererFactory
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.LivingEntity
-import software.bernie.geckolib3.core.IAnimatable
-import software.bernie.geckolib3.model.AnimatedGeoModel
-import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer
+import software.bernie.geckolib.core.animatable.GeoAnimatable
+import software.bernie.geckolib.model.GeoModel
+import software.bernie.geckolib.renderer.GeoEntityRenderer
 
-open class AnimatedEntityRenderer<T>(ctx: EntityRendererFactory.Context, modelProvider: AnimatedGeoModel<T>) :
+open class AnimatedEntityRenderer<T>(ctx: EntityRendererFactory.Context, modelProvider: GeoModel<T>) :
     GeoEntityRenderer<T>(ctx, modelProvider) where
-T : LivingEntity,
-T : IAnimatable {
+T : GeoAnimatable, T : LivingEntity {
     private val features = mutableListOf<AnimatedFeatureRenderer<T>>()
 
     fun getFeatures() = features.toList()
 
     fun addFeature(newFeature: AnimatedFeatureRenderer<T>): Boolean = features.add(newFeature)
 
-    override fun renderEarly(
-        animatable: T,
-        stackIn: MatrixStack?,
-        ticks: Float,
-        renderTypeBuffer: VertexConsumerProvider?,
-        vertexBuilder: VertexConsumer?,
-        packedLightIn: Int,
-        packedOverlayIn: Int,
-        red: Float,
-        green: Float,
-        blue: Float,
-        partialTicks: Float
+    override fun render(
+        entity: T,
+        entityYaw: Float,
+        partialTick: Float,
+        matrixStack: MatrixStack?,
+        bufferSource: VertexConsumerProvider?,
+        packedLight: Int
     ) {
-        super.renderEarly(
-            animatable,
-            stackIn,
-            ticks,
-            renderTypeBuffer,
-            vertexBuilder,
-            packedLightIn,
-            packedOverlayIn,
-            red,
-            green,
-            blue,
-            partialTicks
-        )
+        super.render(entity, entityYaw, partialTick, matrixStack, bufferSource, packedLight)
 
         features.forEach {
-            it.render(animatable, stackIn, partialTicks, renderTypeBuffer, packedLightIn, packedOverlayIn)
+            it.render(animatable, matrixStack, partialTick, bufferSource, packedLight)
         }
     }
 }
 
 interface AnimatedFeatureRenderer<T> where
 T : LivingEntity,
-T : IAnimatable {
+T : GeoAnimatable {
     fun render(
         entity: T,
         matrices: MatrixStack?,
         ticks: Float,
         provider: VertexConsumerProvider?,
-        light: Int,
-        overlay: Int
+        light: Int
     )
 }

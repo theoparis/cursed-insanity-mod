@@ -5,6 +5,7 @@
 build/
 bin/
 out/
+/run/
 target/
 .gradle/
 .cache/

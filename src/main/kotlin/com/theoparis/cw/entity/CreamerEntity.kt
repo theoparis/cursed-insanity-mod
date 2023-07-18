@@ -1,15 +1,11 @@
 package com.theoparis.cw.entity
 
+import com.theoparis.cw.CursedAnimations
 import com.theoparis.cw.CursedWeirdosMod
 import com.theoparis.cw.entity.goal.ExplosiveIgniteGoal
-import com.theoparis.cw.entity.util.IExplosiveEntity
+import com.theoparis.cw.entity.util.ExplosiveEntity
 import com.theoparis.cw.entity.util.shouldPlayWalkAnim
 import com.theoparis.cw.registry.CursedSounds
-import net.fabricmc.api.EnvType
-import net.fabricmc.api.Environment
-import net.fabricmc.api.EnvironmentInterface
-import net.fabricmc.api.EnvironmentInterfaces
-import net.minecraft.client.render.entity.feature.SkinOverlayOwner
 import net.minecraft.entity.AreaEffectCloudEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
@@ -23,6 +19,7 @@ import net.minecraft.entity.data.TrackedData
 import net.minecraft.entity.data.TrackedDataHandlerRegistry
 import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.entity.mob.HostileEntity
+import net.minecraft.entity.mob.MobEntity
 import net.minecraft.entity.passive.CatEntity
 import net.minecraft.entity.passive.OcelotEntity
 import net.minecraft.entity.player.PlayerEntity
@@ -37,28 +34,26 @@ import net.minecraft.util.Hand
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.GameRules
 import net.minecraft.world.World
-import net.minecraft.world.explosion.Explosion.DestructionType
-import software.bernie.geckolib3.core.IAnimatable
-import software.bernie.geckolib3.core.PlayState
-import software.bernie.geckolib3.core.builder.AnimationBuilder
-import software.bernie.geckolib3.core.controller.AnimationController
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent
-import software.bernie.geckolib3.core.manager.AnimationData
-import software.bernie.geckolib3.core.manager.AnimationFactory
+import net.minecraft.world.World.ExplosionSourceType
+import software.bernie.geckolib.animatable.GeoEntity
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache
+import software.bernie.geckolib.core.animation.AnimatableManager
+import software.bernie.geckolib.core.animation.AnimationController
+import software.bernie.geckolib.core.animation.AnimationState
+import software.bernie.geckolib.core.`object`.PlayState
+import software.bernie.geckolib.util.GeckoLibUtil
 
-@EnvironmentInterfaces(EnvironmentInterface(value = EnvType.CLIENT, itf = SkinOverlayOwner::class))
+
 class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
     HostileEntity(entityType, world),
-    IExplosiveEntity,
-    SkinOverlayOwner,
-    IAnimatable {
+    ExplosiveEntity,
+    GeoEntity {
     private var lastFuseTime = 0
     private var currentFuseTime = 0
     override var fuseTime = 30
 
     private var explosionRadius = 3
-    private var headsDropped = 0
-    private val factory = AnimationFactory(this)
+    private val cache = GeckoLibUtil.createInstanceCache(this)
 
     init {
         ignoreCameraFrustum = true
@@ -75,7 +70,7 @@ class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
         goalSelector.add(6, LookAroundGoal(this))
         targetSelector.add(
             1,
-            ActiveTargetGoal(
+            TargetGoal(
                 this,
                 PlayerEntity::class.java, true
             )
@@ -148,33 +143,28 @@ class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
     }
 
     override fun getHurtSound(source: DamageSource): SoundEvent {
-        return CursedSounds.CREAMER_HURT
+        return CursedSounds.creamerHurtSound
     }
 
     override fun getAmbientSound(): SoundEvent {
-        return CursedSounds.CREAMER_AMBIENT
+        return CursedSounds.creamerAmbientSound
     }
 
     override fun getDeathSound(): SoundEvent {
-        return CursedSounds.CREAMER_HURT
+        return CursedSounds.creamerHurtSound
     }
 
     override fun dropEquipment(source: DamageSource, lootingMultiplier: Int, allowDrops: Boolean) {
         super.dropEquipment(source, lootingMultiplier, allowDrops)
         val entity = source.attacker
         if (entity !== this)
-            this.dropItem(CursedWeirdosMod.cucummberItem)
+            this.dropItem(CursedWeirdosMod.cucumberItem)
     }
 
     override fun tryAttack(target: Entity): Boolean {
         return true
     }
 
-    override fun shouldRenderOverlay(): Boolean {
-        return dataTracker.get(CHARGED) as Boolean
-    }
-
-    @Environment(EnvType.CLIENT)
     fun getClientFuseTime(timeDelta: Float): Float {
         return MathHelper.lerp(timeDelta, lastFuseTime.toFloat(), currentFuseTime.toFloat()) / (fuseTime - 2).toFloat()
     }
@@ -221,8 +211,11 @@ class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
     private fun explode() {
         if (!world.isClient) {
             val destructionType =
-                if (world.gameRules.getBoolean(GameRules.DO_MOB_GRIEFING)) DestructionType.DESTROY else DestructionType.NONE
-            val f = if (shouldRenderOverlay()) 2.0f else 1.0f
+                if (world.gameRules.getBoolean(GameRules.DO_MOB_GRIEFING))
+                    ExplosionSourceType.MOB
+                else
+                    ExplosionSourceType.NONE
+            val f = if (dataTracker.get(CHARGED)) 2.0f else 1.0f
             dead = true
             world.createExplosion(this, this.x, this.y, this.z, explosionRadius.toFloat() * f, destructionType)
             this.remove(RemovalReason.KILLED)
@@ -238,8 +231,9 @@ class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
             areaEffectCloudEntity.radiusOnUse = -0.5f
             areaEffectCloudEntity.waitTime = 10
             areaEffectCloudEntity.duration = areaEffectCloudEntity.duration / 2
-            areaEffectCloudEntity.radiusGrowth = -areaEffectCloudEntity.radius / areaEffectCloudEntity.duration
-                .toFloat()
+            areaEffectCloudEntity.radiusGrowth =
+                -areaEffectCloudEntity.radius / areaEffectCloudEntity.duration
+                    .toFloat()
             val var3: Iterator<*> = collection.iterator()
             while (var3.hasNext()) {
                 val statusEffectInstance = var3.next() as StatusEffectInstance
@@ -262,7 +256,7 @@ class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
         private var IGNITED: TrackedData<Boolean>? = null
 
         fun createAttributes(): DefaultAttributeContainer.Builder {
-            return createHostileAttributes().add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25)
+            return MobEntity.createAttributes().add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25)
         }
 
         init {
@@ -272,28 +266,21 @@ class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
         }
     }
 
-    private fun predicate(event: AnimationEvent<CreamerEntity>): PlayState {
-        event.controller.setAnimation(
-            AnimationBuilder().addAnimation(
-                "animation.creamer.walk",
-                this.shouldPlayWalkAnim()
-            )
-        )
-        return PlayState.CONTINUE
-    }
-
-    override fun registerControllers(data: AnimationData) {
-        @Suppress("UNCHECKED_CAST")
-        data.addAnimationController(
+    override fun registerControllers(controllers: AnimatableManager.ControllerRegistrar?) {
+        controllers?.add(
             AnimationController(
-                this,
-                "controller",
-                0f
-            ) { ev -> predicate(ev) }
+                this, "animation.creamer.idle", 5
+            ) { state: AnimationState<CreamerEntity> ->
+                if (shouldPlayWalkAnim())
+                    state.setAndContinue(
+                        CursedAnimations.creamerWalkAnimation
+                    )
+                else PlayState.CONTINUE
+            }
         )
     }
 
-    override fun getFactory(): AnimationFactory {
-        return factory
+    override fun getAnimatableInstanceCache(): AnimatableInstanceCache {
+        return cache
     }
 }
