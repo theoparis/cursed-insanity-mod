@@ -9,10 +9,12 @@ import software.bernie.geckolib3.core.IAnimatable
 import software.bernie.geckolib3.model.AnimatedGeoModel
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer
 
-open class AnimatedEntityRenderer<T>(ctx: EntityRendererFactory.Context, modelProvider: AnimatedGeoModel<T>) :
-    GeoEntityRenderer<T>(ctx, modelProvider) where
-T : LivingEntity,
-T : IAnimatable {
+open class AnimatedEntityRenderer<T>(
+    ctx: EntityRendererFactory.Context,
+    modelProvider: AnimatedGeoModel<T>,
+) : GeoEntityRenderer<T>(ctx, modelProvider) where
+          T : LivingEntity,
+          T : IAnimatable {
     private val features = mutableListOf<AnimatedFeatureRenderer<T>>()
 
     fun getFeatures() = features.toList()
@@ -30,7 +32,7 @@ T : IAnimatable {
         red: Float,
         green: Float,
         blue: Float,
-        partialTicks: Float
+        partialTicks: Float,
     ) {
         super.renderEarly(
             animatable,
@@ -43,7 +45,7 @@ T : IAnimatable {
             red,
             green,
             blue,
-            partialTicks
+            partialTicks,
         )
 
         features.forEach {
@@ -53,14 +55,14 @@ T : IAnimatable {
 }
 
 interface AnimatedFeatureRenderer<T> where
-T : LivingEntity,
-T : IAnimatable {
+          T : LivingEntity,
+          T : IAnimatable {
     fun render(
         entity: T,
         matrices: MatrixStack?,
         ticks: Float,
         provider: VertexConsumerProvider?,
         light: Int,
-        overlay: Int
+        overlay: Int,
     )
 }

@@ -14,7 +14,14 @@ import net.minecraft.entity.AreaEffectCloudEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LightningEntity
-import net.minecraft.entity.ai.goal.*
+import net.minecraft.entity.ai.goal.ActiveTargetGoal
+import net.minecraft.entity.ai.goal.FleeEntityGoal
+import net.minecraft.entity.ai.goal.LookAroundGoal
+import net.minecraft.entity.ai.goal.LookAtEntityGoal
+import net.minecraft.entity.ai.goal.MeleeAttackGoal
+import net.minecraft.entity.ai.goal.RevengeGoal
+import net.minecraft.entity.ai.goal.SwimGoal
+import net.minecraft.entity.ai.goal.WanderAroundFarGoal
 import net.minecraft.entity.attribute.DefaultAttributeContainer
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.damage.DamageSource
@@ -47,8 +54,10 @@ import software.bernie.geckolib3.core.manager.AnimationData
 import software.bernie.geckolib3.core.manager.AnimationFactory
 
 @EnvironmentInterfaces(EnvironmentInterface(value = EnvType.CLIENT, itf = SkinOverlayOwner::class))
-class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
-    HostileEntity(entityType, world),
+class CreamerEntity(
+    entityType: EntityType<out HostileEntity>,
+    world: World,
+) : HostileEntity(entityType, world),
     IExplosiveEntity,
     SkinOverlayOwner,
     IAnimatable {
@@ -77,17 +86,20 @@ class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
             1,
             ActiveTargetGoal(
                 this,
-                PlayerEntity::class.java, true
-            )
+                PlayerEntity::class.java,
+                true,
+            ),
         )
         targetSelector.add(2, RevengeGoal(this, *arrayOfNulls(0)))
     }
 
-    override fun getSafeFallDistance(): Int {
-        return if (target == null) 3 else 3 + (this.health - 1.0f).toInt()
-    }
+    override fun getSafeFallDistance(): Int = if (target == null) 3 else 3 + (this.health - 1.0f).toInt()
 
-    override fun handleFallDamage(fallDistance: Float, damageMultiplier: Float, source: DamageSource): Boolean {
+    override fun handleFallDamage(
+        fallDistance: Float,
+        damageMultiplier: Float,
+        source: DamageSource,
+    ): Boolean {
         val bl = super.handleFallDamage(fallDistance, damageMultiplier, source)
         currentFuseTime = (currentFuseTime.toFloat() + fallDistance * 1.5f).toInt()
         if (currentFuseTime > fuseTime - 5) {
@@ -98,15 +110,16 @@ class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
 
     override fun initDataTracker() {
         super.initDataTracker()
-        dataTracker.startTracking(FUSE_SPEED, -1)
-        dataTracker.startTracking(CHARGED, false)
-        dataTracker.startTracking(IGNITED, false)
+        dataTracker.startTracking(fuseSpeedTracker, -1)
+        dataTracker.startTracking(chargedTracker, false)
+        dataTracker.startTracking(ignitedTracker, false)
     }
 
     override fun writeCustomDataToNbt(tag: NbtCompound) {
         super.writeCustomDataToNbt(tag)
-        if (dataTracker.get(CHARGED) as Boolean)
+        if (dataTracker.get(chargedTracker) as Boolean) {
             tag.putBoolean("powered", true)
+        }
 
         tag.putShort("fuse", fuseTime.toShort())
         tag.putByte("explosionRadius", explosionRadius.toByte())
@@ -115,30 +128,37 @@ class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
 
     override fun readCustomDataFromNbt(tag: NbtCompound) {
         super.readCustomDataFromNbt(tag)
-        dataTracker.set(CHARGED, tag.getBoolean("powered"))
-        if (tag.contains("fuse", 99))
+        dataTracker.set(chargedTracker, tag.getBoolean("powered"))
+        if (tag.contains("fuse", 99)) {
             fuseTime = tag.getShort("fuse").toInt()
+        }
 
-        if (tag.contains("explosionRadius", 99))
+        if (tag.contains("explosionRadius", 99)) {
             explosionRadius = tag.getByte("explosionRadius").toInt()
+        }
 
-        if (tag.getBoolean("ignited"))
+        if (tag.getBoolean("ignited")) {
             ignite()
+        }
     }
 
     override fun tick() {
         if (this.isAlive) {
             lastFuseTime = currentFuseTime
-            if (ignited)
+            if (ignited) {
                 fuseSpeed = 1
+            }
             val i = fuseSpeed
-            if (i > 0 && currentFuseTime == 0)
+            if (i > 0 && currentFuseTime == 0) {
                 playSound(SoundEvents.ENTITY_CREEPER_PRIMED, 1.0f, 0.5f)
+            }
             currentFuseTime += i
-            if (currentFuseTime < 0)
+            if (currentFuseTime < 0) {
                 currentFuseTime = 0
-            if (currentFuseTime > fuseTime / 2)
+            }
+            if (currentFuseTime > fuseTime / 2) {
                 world.addParticle(ParticleTypes.CLOUD, true, pos.x, pos.y, pos.z, 0.1, 0.2, 0.1)
+            }
             if (currentFuseTime >= fuseTime) {
                 currentFuseTime = fuseTime
                 explode()
@@ -147,50 +167,50 @@ class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
         super.tick()
     }
 
-    override fun getHurtSound(source: DamageSource): SoundEvent {
-        return CursedSounds.CREAMER_HURT
-    }
+    override fun getHurtSound(source: DamageSource): SoundEvent = CursedSounds.CREAMER_HURT
 
-    override fun getAmbientSound(): SoundEvent {
-        return CursedSounds.CREAMER_AMBIENT
-    }
+    override fun getAmbientSound(): SoundEvent = CursedSounds.CREAMER_AMBIENT
 
-    override fun getDeathSound(): SoundEvent {
-        return CursedSounds.CREAMER_HURT
-    }
+    override fun getDeathSound(): SoundEvent = CursedSounds.CREAMER_HURT
 
-    override fun dropEquipment(source: DamageSource, lootingMultiplier: Int, allowDrops: Boolean) {
+    override fun dropEquipment(
+        source: DamageSource,
+        lootingMultiplier: Int,
+        allowDrops: Boolean,
+    ) {
         super.dropEquipment(source, lootingMultiplier, allowDrops)
         val entity = source.attacker
-        if (entity !== this)
+        if (entity !== this) {
             this.dropItem(CursedWeirdosMod.cucummberItem)
+        }
     }
 
-    override fun tryAttack(target: Entity): Boolean {
-        return true
-    }
+    override fun tryAttack(target: Entity): Boolean = true
 
-    override fun shouldRenderOverlay(): Boolean {
-        return dataTracker.get(CHARGED) as Boolean
-    }
+    override fun shouldRenderOverlay(): Boolean = dataTracker.get(chargedTracker) as Boolean
 
     @Environment(EnvType.CLIENT)
-    fun getClientFuseTime(timeDelta: Float): Float {
-        return MathHelper.lerp(timeDelta, lastFuseTime.toFloat(), currentFuseTime.toFloat()) / (fuseTime - 2).toFloat()
-    }
+    fun getClientFuseTime(timeDelta: Float): Float =
+        MathHelper.lerp(timeDelta, lastFuseTime.toFloat(), currentFuseTime.toFloat()) / (fuseTime - 2).toFloat()
 
     override var fuseSpeed: Int
-        get() = dataTracker.get(FUSE_SPEED) as Int
+        get() = dataTracker.get(fuseSpeedTracker) as Int
         set(fuseSpeed) {
-            dataTracker.set(FUSE_SPEED, fuseSpeed)
+            dataTracker.set(fuseSpeedTracker, fuseSpeed)
         }
 
-    override fun onStruckByLightning(world: ServerWorld, lightning: LightningEntity) {
+    override fun onStruckByLightning(
+        world: ServerWorld,
+        lightning: LightningEntity,
+    ) {
         super.onStruckByLightning(world, lightning)
-        dataTracker.set(CHARGED, true)
+        dataTracker.set(chargedTracker, true)
     }
 
-    override fun interactMob(player: PlayerEntity, hand: Hand): ActionResult {
+    override fun interactMob(
+        player: PlayerEntity,
+        hand: Hand,
+    ): ActionResult {
         val itemStack = player.getStackInHand(hand)
         return if (itemStack.item === Items.FLINT_AND_STEEL) {
             world.playSound(
@@ -201,21 +221,23 @@ class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
                 SoundEvents.ITEM_FLINTANDSTEEL_USE,
                 this.soundCategory,
                 1.0f,
-                random.nextFloat() * 0.4f + 0.8f
+                random.nextFloat() * 0.4f + 0.8f,
             )
             if (!world.isClient) {
                 ignite()
                 itemStack.damage(
-                    1, player
+                    1,
+                    player,
                 ) { playerEntity: PlayerEntity ->
                     playerEntity.sendToolBreakStatus(
-                        hand
+                        hand,
                     )
                 }
             }
             ActionResult.success(world.isClient)
-        } else
+        } else {
             super.interactMob(player, hand)
+        }
     }
 
     private fun explode() {
@@ -238,8 +260,9 @@ class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
             areaEffectCloudEntity.radiusOnUse = -0.5f
             areaEffectCloudEntity.waitTime = 10
             areaEffectCloudEntity.duration = areaEffectCloudEntity.duration / 2
-            areaEffectCloudEntity.radiusGrowth = -areaEffectCloudEntity.radius / areaEffectCloudEntity.duration
-                .toFloat()
+            areaEffectCloudEntity.radiusGrowth = -areaEffectCloudEntity.radius /
+                areaEffectCloudEntity.duration
+                    .toFloat()
             val var3: Iterator<*> = collection.iterator()
             while (var3.hasNext()) {
                 val statusEffectInstance = var3.next() as StatusEffectInstance
@@ -250,25 +273,24 @@ class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
     }
 
     val ignited: Boolean
-        get() = dataTracker.get(IGNITED) as Boolean
+        get() = dataTracker.get(ignitedTracker) as Boolean
 
     override fun ignite() {
-        dataTracker.set(IGNITED, true)
+        dataTracker.set(ignitedTracker, true)
     }
 
     companion object {
-        private var FUSE_SPEED: TrackedData<Int>? = null
-        private var CHARGED: TrackedData<Boolean>? = null
-        private var IGNITED: TrackedData<Boolean>? = null
+        private var fuseSpeedTracker: TrackedData<Int>? = null
+        private var chargedTracker: TrackedData<Boolean>? = null
+        private var ignitedTracker: TrackedData<Boolean>? = null
 
-        fun createAttributes(): DefaultAttributeContainer.Builder {
-            return createHostileAttributes().add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25)
-        }
+        fun createAttributes(): DefaultAttributeContainer.Builder =
+            createHostileAttributes().add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25)
 
         init {
-            FUSE_SPEED = DataTracker.registerData(CreamerEntity::class.java, TrackedDataHandlerRegistry.INTEGER)
-            CHARGED = DataTracker.registerData(CreamerEntity::class.java, TrackedDataHandlerRegistry.BOOLEAN)
-            IGNITED = DataTracker.registerData(CreamerEntity::class.java, TrackedDataHandlerRegistry.BOOLEAN)
+            fuseSpeedTracker = DataTracker.registerData(CreamerEntity::class.java, TrackedDataHandlerRegistry.INTEGER)
+            chargedTracker = DataTracker.registerData(CreamerEntity::class.java, TrackedDataHandlerRegistry.BOOLEAN)
+            ignitedTracker = DataTracker.registerData(CreamerEntity::class.java, TrackedDataHandlerRegistry.BOOLEAN)
         }
     }
 
@@ -276,8 +298,8 @@ class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
         event.controller.setAnimation(
             AnimationBuilder().addAnimation(
                 "animation.creamer.walk",
-                this.shouldPlayWalkAnim()
-            )
+                this.shouldPlayWalkAnim(),
+            ),
         )
         return PlayState.CONTINUE
     }
@@ -288,12 +310,10 @@ class CreamerEntity(entityType: EntityType<out HostileEntity>, world: World) :
             AnimationController(
                 this,
                 "controller",
-                0f
-            ) { ev -> predicate(ev) }
+                0f,
+            ) { ev -> predicate(ev) },
         )
     }
 
-    override fun getFactory(): AnimationFactory {
-        return factory
-    }
+    override fun getFactory(): AnimationFactory = factory
 }

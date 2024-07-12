@@ -6,5 +6,6 @@ interface IExplosiveEntity {
      */
     var fuseTime: Int
     var fuseSpeed: Int
+
     fun ignite()
 }

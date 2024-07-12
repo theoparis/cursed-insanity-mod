@@ -3,7 +3,13 @@ package com.theoparis.cw.entity
 import com.theoparis.cw.CursedWeirdosMod
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.EquipmentSlot
-import net.minecraft.entity.ai.goal.*
+import net.minecraft.entity.ai.goal.ActiveTargetGoal
+import net.minecraft.entity.ai.goal.LookAroundGoal
+import net.minecraft.entity.ai.goal.LookAtEntityGoal
+import net.minecraft.entity.ai.goal.MeleeAttackGoal
+import net.minecraft.entity.ai.goal.RevengeGoal
+import net.minecraft.entity.ai.goal.SwimGoal
+import net.minecraft.entity.ai.goal.WanderAroundFarGoal
 import net.minecraft.entity.attribute.DefaultAttributeContainer
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.damage.DamageSource
@@ -20,8 +26,10 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent
 import software.bernie.geckolib3.core.manager.AnimationData
 import software.bernie.geckolib3.core.manager.AnimationFactory
 
-class ImposterEntity(entityType: EntityType<out HostileEntity>?, world: World?) :
-    HostileEntity(entityType, world),
+class ImposterEntity(
+    entityType: EntityType<out HostileEntity>?,
+    world: World?,
+) : HostileEntity(entityType, world),
     IAnimatable {
     private val factory = AnimationFactory(this)
 
@@ -35,8 +43,9 @@ class ImposterEntity(entityType: EntityType<out HostileEntity>?, world: World?) 
             1,
             ActiveTargetGoal(
                 this,
-                PlayerEntity::class.java, true
-            )
+                PlayerEntity::class.java,
+                true,
+            ),
         )
         targetSelector.add(2, RevengeGoal(this, *arrayOfNulls(0)))
     }
@@ -47,8 +56,8 @@ class ImposterEntity(entityType: EntityType<out HostileEntity>?, world: World?) 
         event.controller.setAnimation(
             AnimationBuilder().addAnimation(
                 "animation.imposter.walk",
-                shouldPlayWalkAnim()
-            )
+                shouldPlayWalkAnim(),
+            ),
         )
         return PlayState.CONTINUE
     }
@@ -59,8 +68,8 @@ class ImposterEntity(entityType: EntityType<out HostileEntity>?, world: World?) 
             AnimationController(
                 this,
                 "controller",
-                0f
-            ) { ev -> predicate(ev) }
+                0f,
+            ) { ev -> predicate(ev) },
         )
     }
 
@@ -68,22 +77,23 @@ class ImposterEntity(entityType: EntityType<out HostileEntity>?, world: World?) 
         this.equipStack(EquipmentSlot.MAINHAND, ItemStack(Items.IRON_SWORD))
     }
 
-    override fun dropEquipment(source: DamageSource?, lootingMultiplier: Int, allowDrops: Boolean) {
+    override fun dropEquipment(
+        source: DamageSource?,
+        lootingMultiplier: Int,
+        allowDrops: Boolean,
+    ) {
         super.dropEquipment(source, lootingMultiplier, allowDrops)
         dropItem {
             CursedWeirdosMod.totemOfLying
         }
     }
 
-    override fun getFactory(): AnimationFactory {
-        return factory
-    }
+    override fun getFactory(): AnimationFactory = factory
 
     companion object {
-        fun createAttributes(): DefaultAttributeContainer.Builder {
-            return createHostileAttributes()
+        fun createAttributes(): DefaultAttributeContainer.Builder =
+            createHostileAttributes()
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.35)
                 .add(EntityAttributes.GENERIC_MAX_HEALTH, 8.0)
-        }
     }
 }

@@ -4,16 +4,21 @@ import com.theoparis.cw.entity.util.IExplosiveEntity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.ai.goal.Goal
 import net.minecraft.entity.mob.MobEntity
-import java.util.*
+import java.util.EnumSet
 
-class ExplosiveIgniteGoal(private val entity: MobEntity) : Goal() {
+class ExplosiveIgniteGoal(
+    private val entity: MobEntity,
+) : Goal() {
     private var target: LivingEntity? = null
     private var explosiveEntity: IExplosiveEntity
 
     override fun canStart(): Boolean {
         val livingEntity = entity.target
-        return if (livingEntity != null) explosiveEntity.fuseSpeed > 0 || entity.squaredDistanceTo(livingEntity) < 9.0
-        else false
+        return if (livingEntity != null) {
+            explosiveEntity.fuseSpeed > 0 || entity.squaredDistanceTo(livingEntity) < 9.0
+        } else {
+            false
+        }
     }
 
     override fun start() {

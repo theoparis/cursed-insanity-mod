@@ -43,7 +43,7 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:0.16.0")
     modImplementation("net.fabricmc.fabric-api:fabric-api:0.100.6+1.21")
     modImplementation("net.fabricmc:fabric-language-kotlin:1.11.0+kotlin.2.0.0")
-    modImplementation("software.bernie.geckolib:geckolib-fabric-1.18:3.0.93")
+    modImplementation("software.bernie.geckolib:geckolib-fabric-1.21:4.5.6")
 }
 
 val fabricApiVersion = ""

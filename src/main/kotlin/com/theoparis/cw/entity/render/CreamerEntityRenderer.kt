@@ -13,17 +13,20 @@ import net.minecraft.util.math.Vec3f
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer
 
 @Environment(EnvType.CLIENT)
-class CreamerEntityRenderer(ctx: EntityRendererFactory.Context) :
-    GeoEntityRenderer<CreamerEntity>(
+class CreamerEntityRenderer(
+    ctx: EntityRendererFactory.Context,
+) : GeoEntityRenderer<CreamerEntity>(
         ctx,
-        CreamerModel()
+        CreamerModel(),
     ) {
-
     init {
         shadowRadius = 0.5f
     }
 
-    fun getScale(animatable: CreamerEntity?, partialTicks: Float): Vec3f {
+    fun getScale(
+        animatable: CreamerEntity?,
+        partialTicks: Float,
+    ): Vec3f {
         if (animatable == null) return Vec3f()
         var g: Float = animatable.getClientFuseTime(partialTicks)
         val h = 1.0f + MathHelper.sin(g * 100.0f) * g * 0.01f
@@ -46,7 +49,7 @@ class CreamerEntityRenderer(ctx: EntityRendererFactory.Context) :
         red: Float,
         green: Float,
         blue: Float,
-        partialTicks: Float
+        partialTicks: Float,
     ) {
         val sc = getScale(animatable, partialTicks)
         stackIn?.scale(sc.x, sc.y, sc.z)
@@ -62,7 +65,7 @@ class CreamerEntityRenderer(ctx: EntityRendererFactory.Context) :
             red,
             green,
             blue,
-            partialTicks
+            partialTicks,
         )
     }
 

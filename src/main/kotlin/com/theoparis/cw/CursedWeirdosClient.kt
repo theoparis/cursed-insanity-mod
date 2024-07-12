@@ -11,7 +11,7 @@ import software.bernie.geckolib3.GeckoLib
 class CursedWeirdosClient : ClientModInitializer {
     companion object {
         @JvmStatic
-        val logger = LogManager.getFormatterLogger(CursedWeirdosMod.modID)
+        val logger = LogManager.getFormatterLogger(CursedWeirdosMod.modIdentifier)
 
         // Client-side registration
     }
@@ -21,18 +21,18 @@ class CursedWeirdosClient : ClientModInitializer {
         GeckoLib.initialize()
 
         EntityRendererRegistry.register(
-            CursedWeirdosMod.creamerEntity
+            CursedWeirdosMod.creamerEntity,
         ) { ctx: EntityRendererFactory.Context ->
             CreamerEntityRenderer(
-                ctx
+                ctx,
             )
         }
 
         EntityRendererRegistry.register(
-            CursedWeirdosMod.imposterEntity
+            CursedWeirdosMod.imposterEntity,
         ) { ctx: EntityRendererFactory.Context ->
             ImposterEntityRenderer(
-                ctx
+                ctx,
             )
         }
     }

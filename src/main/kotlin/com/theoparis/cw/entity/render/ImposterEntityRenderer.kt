@@ -10,12 +10,12 @@ import net.minecraft.client.render.entity.EntityRendererFactory
 import net.minecraft.util.math.Vec3f
 
 @Environment(EnvType.CLIENT)
-class ImposterEntityRenderer(ctx:  EntityRendererFactory.Context) :
-    AnimatedEntityRenderer<ImposterEntity>(
+class ImposterEntityRenderer(
+    ctx: EntityRendererFactory.Context,
+) : AnimatedEntityRenderer<ImposterEntity>(
         ctx,
-        ImposterModel()
+        ImposterModel(),
     ) {
-
     init {
         shadowRadius = 0.5f
         addFeature(HeldItemFeature(Vec3f(0.5f, 0.5f, 0f)))

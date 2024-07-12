@@ -11,18 +11,13 @@ import software.bernie.geckolib3.model.AnimatedGeoModel
 class CreamerModel : AnimatedGeoModel<CreamerEntity>() {
     companion object {
         @JvmStatic
-        fun getTexture() = Identifier(CursedWeirdosMod.modID, "textures/entity/creamer.png")
+        fun getTexture() = Identifier(CursedWeirdosMod.modIdentifier, "textures/entity/creamer.png")
     }
 
-    override fun getModelLocation(obj: CreamerEntity): Identifier {
-        return Identifier(CursedWeirdosMod.modID, "geo/creamer.geo.json")
-    }
+    override fun getModelLocation(obj: CreamerEntity): Identifier = Identifier(CursedWeirdosMod.modIdentifier, "geo/creamer.geo.json")
 
-    override fun getTextureLocation(obj: CreamerEntity): Identifier {
-        return getTexture()
-    }
+    override fun getTextureLocation(obj: CreamerEntity): Identifier = getTexture()
 
-    override fun getAnimationFileLocation(obj: CreamerEntity): Identifier {
-        return Identifier(CursedWeirdosMod.modID, "animations/creamer.animation.json")
-    }
+    override fun getAnimationFileLocation(obj: CreamerEntity): Identifier =
+        Identifier(CursedWeirdosMod.modIdentifier, "animations/creamer.animation.json")
 }

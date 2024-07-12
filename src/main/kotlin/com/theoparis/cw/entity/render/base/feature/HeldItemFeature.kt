@@ -9,8 +9,9 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Vec3f
 import software.bernie.geckolib3.core.IAnimatable
 
-class HeldItemFeature<T>(private val translation: Vec3f) :
-    AnimatedFeatureRenderer<T> where T : IAnimatable, T : LivingEntity {
+class HeldItemFeature<T>(
+    private val translation: Vec3f,
+) : AnimatedFeatureRenderer<T> where T : IAnimatable, T : LivingEntity {
     private val mc = MinecraftClient.getInstance()
 
     override fun render(
@@ -19,7 +20,7 @@ class HeldItemFeature<T>(private val translation: Vec3f) :
         ticks: Float,
         provider: VertexConsumerProvider?,
         light: Int,
-        overlay: Int
+        overlay: Int,
     ) {
         matrices?.push()
         matrices?.scale(0.75f, 0.75f, 0.75f)
@@ -34,7 +35,7 @@ class HeldItemFeature<T>(private val translation: Vec3f) :
             entity.world,
             light,
             overlay,
-            0
+            0,
         )
         matrices?.pop()
 /*        mc.itemRenderer.renderItem(
