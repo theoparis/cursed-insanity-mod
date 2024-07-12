@@ -1,21 +1,22 @@
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.9.24"
+    kotlin("jvm") version "2.0.0"
     id("fabric-loom") version "1.7.2"
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_22
+    targetCompatibility = JavaVersion.VERSION_22
 }
 
 // load props from parent project
-val parentProps = rootDir.resolve("gradle.properties").bufferedReader().use {
-    Properties().apply {
-        load(it)
+val parentProps =
+    rootDir.resolve("gradle.properties").bufferedReader().use {
+        Properties().apply {
+            load(it)
+        }
     }
-}
 
 val modId: String by parentProps
 val modVersion: String by parentProps
@@ -55,8 +56,8 @@ tasks.getByName<ProcessResources>("processResources") {
                 "modid" to modId,
                 "version" to modVersion,
                 "kotlinVersion" to kotlinVersion,
-                "fabricApiVersion" to fabricApiVersion
-            )
+                "fabricApiVersion" to fabricApiVersion,
+            ),
         )
     }
 }
