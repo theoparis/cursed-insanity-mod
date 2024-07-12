@@ -11,3 +11,4 @@ target/
 .idea/
 .vscode/
 kls_database.db
+/run/

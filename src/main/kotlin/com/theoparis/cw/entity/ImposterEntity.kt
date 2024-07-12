@@ -17,21 +17,20 @@ import net.minecraft.entity.mob.HostileEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.world.World
-import software.bernie.geckolib3.core.IAnimatable
-import software.bernie.geckolib3.core.PlayState
-import software.bernie.geckolib3.core.builder.AnimationBuilder
-import software.bernie.geckolib3.core.controller.AnimationController
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent
-import software.bernie.geckolib3.core.manager.AnimationData
-import software.bernie.geckolib3.core.manager.AnimationFactory
+import software.bernie.geckolib.animatable.GeoEntity
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache
+import software.bernie.geckolib.animation.AnimatableManager
+import software.bernie.geckolib.constant.DefaultAnimations
+import software.bernie.geckolib.util.GeckoLibUtil
 
 class ImposterEntity(
     entityType: EntityType<out HostileEntity>?,
     world: World?,
 ) : HostileEntity(entityType, world),
-    IAnimatable {
-    private val factory = AnimationFactory(this)
+    GeoEntity {
+    private val animatableInstanceCache = GeckoLibUtil.createInstanceCache(this)
 
     override fun initGoals() {
         goalSelector.add(1, SwimGoal(this))
@@ -52,43 +51,29 @@ class ImposterEntity(
 
     private fun shouldPlayWalkAnim() = !navigation.isIdle || velocity.x > 0 || velocity.z > 0 || velocity.y > 0
 
-    private fun <P : IAnimatable> predicate(event: AnimationEvent<P>): PlayState {
-        event.controller.setAnimation(
-            AnimationBuilder().addAnimation(
-                "animation.imposter.walk",
-                shouldPlayWalkAnim(),
-            ),
-        )
-        return PlayState.CONTINUE
-    }
-
-    override fun registerControllers(data: AnimationData) {
-        @Suppress("UNCHECKED_CAST")
-        data.addAnimationController(
-            AnimationController(
-                this,
-                "controller",
-                0f,
-            ) { ev -> predicate(ev) },
-        )
-    }
-
     init {
         this.equipStack(EquipmentSlot.MAINHAND, ItemStack(Items.IRON_SWORD))
     }
 
     override fun dropEquipment(
-        source: DamageSource?,
-        lootingMultiplier: Int,
-        allowDrops: Boolean,
+        world: ServerWorld,
+        source: DamageSource,
+        causedByPlayer: Boolean,
     ) {
-        super.dropEquipment(source, lootingMultiplier, allowDrops)
+        super.dropEquipment(world, source, causedByPlayer)
+
         dropItem {
             CursedWeirdosMod.totemOfLying
         }
     }
 
-    override fun getFactory(): AnimationFactory = factory
+    override fun getAnimatableInstanceCache(): AnimatableInstanceCache = animatableInstanceCache
+
+    override fun registerControllers(controllers: AnimatableManager.ControllerRegistrar) {
+        controllers.add(
+            DefaultAnimations.genericWalkIdleController(this),
+        )
+    }
 
     companion object {
         fun createAttributes(): DefaultAttributeContainer.Builder =

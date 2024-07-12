@@ -32,13 +32,12 @@ repositories {
     }
     mavenLocal()
     mavenCentral()
-    maven("https://jitpack.io")
     maven("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/")
 }
 
 dependencies {
-    minecraft(group = "com.mojang", name = "minecraft", version = minecraftVersion)
-    mappings(group = "net.fabricmc", name = "yarn", version = minecraftVersion + "+build.22", classifier = "v2")
+    minecraft("com.mojang:minecraft:1.21")
+    mappings("net.fabricmc:yarn:1.21+build.9:v2")
 
     modImplementation("net.fabricmc:fabric-loader:0.16.0")
     modImplementation("net.fabricmc.fabric-api:fabric-api:0.100.6+1.21")

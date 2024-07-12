@@ -1,54 +1,82 @@
 {
-    "format_version": "1.8.0",
-    "animations": {
-        "animation.imposter.walk": {
-            "loop": true,
-            "animation_length": 0.52,
-            "bones": {
-                "left_leg": {
-                    "rotation": {
-                        "0.0": {
-                            "vector": [
-                                0,
-                                0,
-                                0
-                            ]
-                        },
-                        "0.24": {
-                            "vector": [
-                                10,
-                                0,
-                                0
-                            ]
-                        },
-                        "0.52": {
-                            "vector": [
-                                -15,
-                                0,
-                                0
-                            ]
-                        }
-                    }
-                },
-                "right_leg": {
-                    "rotation": {
-                        "0.0": {
-                            "vector": [
-                                0,
-                                0,
-                                0
-                            ]
-                        },
-                        "0.24": {
-                            "vector": [
-                                -17.5,
-                                0,
-                                0
-                            ]
-                        }
-                    }
-                }
-            }
-        }
-    }
+	"format_version": "1.8.0",
+	"animations": {
+		"move.idle": {
+			"loop": true,
+			"animation_length": 0,
+			"bones": {
+				"left_leg": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							]
+						}
+					}
+				},
+				"right_leg": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							]
+						}
+					}
+				}
+			}
+		},
+		"move.walk": {
+			"loop": true,
+			"animation_length": 0.52,
+			"bones": {
+				"left_leg": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							]
+						},
+						"0.24": {
+							"vector": [
+								10,
+								0,
+								0
+							]
+						},
+						"0.52": {
+							"vector": [
+								-15,
+								0,
+								0
+							]
+						}
+					}
+				},
+				"right_leg": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							]
+						},
+						"0.24": {
+							"vector": [
+								-17.5,
+								0,
+								0
+							]
+						}
+					}
+				}
+			}
+		}
+	}
 }

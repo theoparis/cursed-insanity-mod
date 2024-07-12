@@ -9,8 +9,9 @@ import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.render.entity.EntityRendererFactory
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.Vec3f
-import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer
+import org.joml.Vector3f
+import software.bernie.geckolib.cache.`object`.BakedGeoModel
+import software.bernie.geckolib.renderer.GeoEntityRenderer
 
 @Environment(EnvType.CLIENT)
 class CreamerEntityRenderer(
@@ -26,8 +27,8 @@ class CreamerEntityRenderer(
     fun getScale(
         animatable: CreamerEntity?,
         partialTicks: Float,
-    ): Vec3f {
-        if (animatable == null) return Vec3f()
+    ): Vector3f {
+        if (animatable == null) return Vector3f()
         var g: Float = animatable.getClientFuseTime(partialTicks)
         val h = 1.0f + MathHelper.sin(g * 100.0f) * g * 0.01f
         g = MathHelper.clamp(g, 0.0f, 1.0f)
@@ -35,41 +36,38 @@ class CreamerEntityRenderer(
         g *= g
         val i = (1.0f + g * 0.4f) * h
         val j = (1.0f + g * 0.1f) / h
-        return Vec3f(i, j, i)
+        return Vector3f(i, j, i)
     }
 
-    override fun renderEarly(
-        animatable: CreamerEntity?,
-        stackIn: MatrixStack?,
-        ticks: Float,
-        renderTypeBuffer: VertexConsumerProvider?,
-        vertexBuilder: VertexConsumer?,
-        packedLightIn: Int,
-        packedOverlayIn: Int,
-        red: Float,
-        green: Float,
-        blue: Float,
-        partialTicks: Float,
+    override fun preRender(
+        poseStack: MatrixStack,
+        animatable: CreamerEntity,
+        model: BakedGeoModel,
+        bufferSource: VertexConsumerProvider?,
+        buffer: VertexConsumer?,
+        isReRender: Boolean,
+        partialTick: Float,
+        packedLight: Int,
+        packedOverlay: Int,
+        color: Int,
     ) {
-        val sc = getScale(animatable, partialTicks)
-        stackIn?.scale(sc.x, sc.y, sc.z)
+        val sc = getScale(animatable, partialTick)
+        poseStack.scale(sc.x, sc.y, sc.z)
 
-        super.renderEarly(
+        super.preRender(
+            poseStack,
             animatable,
-            stackIn,
-            ticks,
-            renderTypeBuffer,
-            vertexBuilder,
-            packedLightIn,
-            packedOverlayIn,
-            red,
-            green,
-            blue,
-            partialTicks,
+            model,
+            bufferSource,
+            buffer,
+            isReRender,
+            partialTick,
+            packedLight,
+            packedOverlay,
+            color,
         )
     }
 
     init {
-        // FEATURES
     }
 }

@@ -3,17 +3,14 @@ package com.theoparis.cw.entity
 import com.theoparis.cw.CursedWeirdosMod
 import com.theoparis.cw.entity.goal.ExplosiveIgniteGoal
 import com.theoparis.cw.entity.util.IExplosiveEntity
-import com.theoparis.cw.entity.util.shouldPlayWalkAnim
 import com.theoparis.cw.registry.CursedSounds
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
-import net.fabricmc.api.EnvironmentInterface
-import net.fabricmc.api.EnvironmentInterfaces
-import net.minecraft.client.render.entity.feature.SkinOverlayOwner
 import net.minecraft.entity.AreaEffectCloudEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LightningEntity
+import net.minecraft.entity.SkinOverlayOwner
 import net.minecraft.entity.ai.goal.ActiveTargetGoal
 import net.minecraft.entity.ai.goal.FleeEntityGoal
 import net.minecraft.entity.ai.goal.LookAroundGoal
@@ -33,9 +30,11 @@ import net.minecraft.entity.mob.HostileEntity
 import net.minecraft.entity.passive.CatEntity
 import net.minecraft.entity.passive.OcelotEntity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.Item
 import net.minecraft.item.Items
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.particle.ParticleTypes
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
@@ -44,30 +43,26 @@ import net.minecraft.util.Hand
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.GameRules
 import net.minecraft.world.World
-import net.minecraft.world.explosion.Explosion.DestructionType
-import software.bernie.geckolib3.core.IAnimatable
-import software.bernie.geckolib3.core.PlayState
-import software.bernie.geckolib3.core.builder.AnimationBuilder
-import software.bernie.geckolib3.core.controller.AnimationController
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent
-import software.bernie.geckolib3.core.manager.AnimationData
-import software.bernie.geckolib3.core.manager.AnimationFactory
+import software.bernie.geckolib.animatable.GeoEntity
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache
+import software.bernie.geckolib.animation.AnimatableManager
+import software.bernie.geckolib.constant.DefaultAnimations
+import software.bernie.geckolib.util.GeckoLibUtil
 
-@EnvironmentInterfaces(EnvironmentInterface(value = EnvType.CLIENT, itf = SkinOverlayOwner::class))
 class CreamerEntity(
     entityType: EntityType<out HostileEntity>,
     world: World,
 ) : HostileEntity(entityType, world),
     IExplosiveEntity,
     SkinOverlayOwner,
-    IAnimatable {
+    GeoEntity {
     private var lastFuseTime = 0
     private var currentFuseTime = 0
     override var fuseTime = 30
 
     private var explosionRadius = 3
     private var headsDropped = 0
-    private val factory = AnimationFactory(this)
+    private val animatableInstanceCache = GeckoLibUtil.createInstanceCache(this)
 
     init {
         ignoreCameraFrustum = true
@@ -108,11 +103,11 @@ class CreamerEntity(
         return bl
     }
 
-    override fun initDataTracker() {
-        super.initDataTracker()
-        dataTracker.startTracking(fuseSpeedTracker, -1)
-        dataTracker.startTracking(chargedTracker, false)
-        dataTracker.startTracking(ignitedTracker, false)
+    override fun initDataTracker(builder: DataTracker.Builder) {
+        super.initDataTracker(builder)
+        builder.add(fuseSpeedTracker, -1)
+        builder.add(chargedTracker, false)
+        builder.add(ignitedTracker, false)
     }
 
     override fun writeCustomDataToNbt(tag: NbtCompound) {
@@ -174,11 +169,12 @@ class CreamerEntity(
     override fun getDeathSound(): SoundEvent = CursedSounds.CREAMER_HURT
 
     override fun dropEquipment(
+        world: ServerWorld,
         source: DamageSource,
-        lootingMultiplier: Int,
-        allowDrops: Boolean,
+        causedByPlayer: Boolean,
     ) {
-        super.dropEquipment(source, lootingMultiplier, allowDrops)
+        super.dropEquipment(world, source, causedByPlayer)
+
         val entity = source.attacker
         if (entity !== this) {
             this.dropItem(CursedWeirdosMod.cucummberItem)
@@ -227,11 +223,9 @@ class CreamerEntity(
                 ignite()
                 itemStack.damage(
                     1,
-                    player,
-                ) { playerEntity: PlayerEntity ->
-                    playerEntity.sendToolBreakStatus(
-                        hand,
-                    )
+                    world as ServerWorld,
+                    player as ServerPlayerEntity,
+                ) { _: Item ->
                 }
             }
             ActionResult.success(world.isClient)
@@ -243,7 +237,11 @@ class CreamerEntity(
     private fun explode() {
         if (!world.isClient) {
             val destructionType =
-                if (world.gameRules.getBoolean(GameRules.DO_MOB_GRIEFING)) DestructionType.DESTROY else DestructionType.NONE
+                if (world.gameRules.getBoolean(GameRules.DO_MOB_GRIEFING)) {
+                    World.ExplosionSourceType.MOB
+                } else {
+                    World.ExplosionSourceType.NONE
+                }
             val f = if (shouldRenderOverlay()) 2.0f else 1.0f
             dead = true
             world.createExplosion(this, this.x, this.y, this.z, explosionRadius.toFloat() * f, destructionType)
@@ -294,26 +292,11 @@ class CreamerEntity(
         }
     }
 
-    private fun predicate(event: AnimationEvent<CreamerEntity>): PlayState {
-        event.controller.setAnimation(
-            AnimationBuilder().addAnimation(
-                "animation.creamer.walk",
-                this.shouldPlayWalkAnim(),
-            ),
-        )
-        return PlayState.CONTINUE
-    }
+    override fun getAnimatableInstanceCache(): AnimatableInstanceCache = animatableInstanceCache
 
-    override fun registerControllers(data: AnimationData) {
-        @Suppress("UNCHECKED_CAST")
-        data.addAnimationController(
-            AnimationController(
-                this,
-                "controller",
-                0f,
-            ) { ev -> predicate(ev) },
+    override fun registerControllers(controllers: AnimatableManager.ControllerRegistrar) {
+        controllers.add(
+            DefaultAnimations.genericWalkIdleController(this),
         )
     }
-
-    override fun getFactory(): AnimationFactory = factory
 }

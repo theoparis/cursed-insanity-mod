@@ -11,9 +11,9 @@ import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricDefaultAttribute
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.SpawnGroup
 import net.minecraft.item.Item
-import net.minecraft.item.ItemGroup
+import net.minecraft.registry.Registries
+import net.minecraft.registry.Registry
 import net.minecraft.util.Identifier
-import net.minecraft.util.registry.Registry
 import net.minecraft.world.biome.BiomeKeys
 import org.apache.logging.log4j.LogManager
 
@@ -22,17 +22,17 @@ class CursedWeirdosMod : ModInitializer {
         @JvmStatic
         val modIdentifier = "cursedweirdos"
 
-        val creamJarItem = CreamJarItem(Item.Settings().group(ItemGroup.FOOD))
-        val cucummberItem = Item(Item.Settings().group(ItemGroup.FOOD))
-        val totemOfLying = Item(Item.Settings().group(ItemGroup.MISC))
+        val creamJarItem = CreamJarItem(Item.Settings())
+        val cucummberItem = Item(Item.Settings())
+        val totemOfLying = Item(Item.Settings())
 
         val creamerEntity: EntityType<CreamerEntity> =
             Registry.register(
-                Registry.ENTITY_TYPE,
-                Identifier(modIdentifier, "creamer"),
+                Registries.ENTITY_TYPE,
+                Identifier.of(modIdentifier, "creamer"),
                 EntityType.Builder
                     .create(::CreamerEntity, SpawnGroup.MONSTER)
-                    .setDimensions(
+                    .dimensions(
                         0.6f,
                         1.7f,
                     ).maxTrackingRange(8)
@@ -41,11 +41,11 @@ class CursedWeirdosMod : ModInitializer {
 
         val imposterEntity: EntityType<ImposterEntity> =
             Registry.register(
-                Registry.ENTITY_TYPE,
-                Identifier(modIdentifier, "imposter"),
+                Registries.ENTITY_TYPE,
+                Identifier.of(modIdentifier, "imposter"),
                 EntityType.Builder
                     .create(::ImposterEntity, SpawnGroup.MONSTER)
-                    .setDimensions(
+                    .dimensions(
                         1f,
                         1f,
                     ).maxTrackingRange(8)
@@ -57,9 +57,9 @@ class CursedWeirdosMod : ModInitializer {
     }
 
     override fun onInitialize() {
-        Registry.register(Registry.ITEM, Identifier(modIdentifier, "cream_jar"), creamJarItem)
-        Registry.register(Registry.ITEM, Identifier(modIdentifier, "cucummber"), cucummberItem)
-        Registry.register(Registry.ITEM, Identifier(modIdentifier, "totem_of_lying"), totemOfLying)
+        Registry.register(Registries.ITEM, Identifier.of(modIdentifier, "cream_jar"), creamJarItem)
+        Registry.register(Registries.ITEM, Identifier.of(modIdentifier, "cucummber"), cucummberItem)
+        Registry.register(Registries.ITEM, Identifier.of(modIdentifier, "totem_of_lying"), totemOfLying)
         FabricDefaultAttributeRegistry.register(creamerEntity, CreamerEntity.createAttributes())
         FabricDefaultAttributeRegistry.register(imposterEntity, ImposterEntity.createAttributes())
         CursedSounds.register()

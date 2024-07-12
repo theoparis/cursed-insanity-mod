@@ -7,7 +7,7 @@ import com.theoparis.cw.entity.render.model.ImposterModel
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.client.render.entity.EntityRendererFactory
-import net.minecraft.util.math.Vec3f
+import org.joml.Vector3f
 
 @Environment(EnvType.CLIENT)
 class ImposterEntityRenderer(
@@ -18,7 +18,7 @@ class ImposterEntityRenderer(
     ) {
     init {
         shadowRadius = 0.5f
-        addFeature(HeldItemFeature(Vec3f(0.5f, 0.5f, 0f)))
+        addFeature(HeldItemFeature(Vector3f(0.5f, 0.5f, 0f)))
     }
 
     companion object

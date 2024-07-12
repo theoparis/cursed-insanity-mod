@@ -38,8 +38,6 @@ class CreamJarItem(
         return if (stack.isEmpty) ItemStack(Items.GLASS_BOTTLE) else stack
     }
 
-    override fun getMaxUseTime(stack: ItemStack): Int = 32
-
     override fun getUseAction(stack: ItemStack): UseAction = UseAction.DRINK
 
     override fun use(
