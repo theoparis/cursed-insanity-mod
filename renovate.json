@@ -1,7 +1,11 @@
 {
-  "extends": ["config:base", "group:allNonMajor"],
   "versioning": "semver",
-  "includeForks": true,
+  "extends": [
+    "config:best-practices",
+    "group:allNonMajor"
+  ],
   "dependencyDashboard": true,
-  "schedule": ["every weekend"]
+  "schedule": [
+    "every weekend"
+  ]
 }
