@@ -1,6 +1,11 @@
 {
-  "extends": ["config:base", "group:allNonMajor"],
-  "includeForks": true,
+  "extends": [
+    "config:recommended",
+    "group:allNonMajor"
+  ],
+  "forkProcessing": "enabled",
   "dependencyDashboard": true,
-  "schedule": ["every weekend"]
+  "schedule": [
+    "every weekend"
+  ]
 }
