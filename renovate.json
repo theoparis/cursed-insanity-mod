@@ -1,6 +1,10 @@
 {
-  "extends": ["config:base", "group:allNonMajor"],
-  "includeForks": true,
+  "extends": [
+    "config:best-practices",
+    "group:allNonMajor"
+  ],
   "dependencyDashboard": true,
-  "schedule": ["every weekend"]
+  "schedule": [
+    "every weekend"
+  ]
 }
