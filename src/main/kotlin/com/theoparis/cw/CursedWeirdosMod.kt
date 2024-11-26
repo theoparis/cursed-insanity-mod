@@ -13,6 +13,8 @@ import net.minecraft.entity.SpawnGroup
 import net.minecraft.item.Item
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
+import net.minecraft.registry.RegistryKey
+import net.minecraft.registry.RegistryKeys
 import net.minecraft.util.Identifier
 import net.minecraft.world.biome.BiomeKeys
 import org.apache.logging.log4j.LogManager
@@ -22,9 +24,26 @@ class CursedWeirdosMod : ModInitializer {
         @JvmStatic
         val modIdentifier = "cursedweirdos"
 
-        val creamJarItem = CreamJarItem(Item.Settings())
-        val cucummberItem = Item(Item.Settings())
-        val totemOfLying = Item(Item.Settings())
+        val creamJarItem =
+            CreamJarItem(
+                Item
+                    .Settings()
+                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(modIdentifier, "cream_jar")))
+                    .maxCount(1),
+            )
+        val cucummberItem =
+            Item(
+                Item
+                    .Settings()
+                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(modIdentifier, "cucummber"))),
+            )
+        val totemOfLying =
+            Item(
+                Item
+                    .Settings()
+                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(modIdentifier, "totem_of_lying")))
+                    .maxCount(1),
+            )
 
         val creamerEntity: EntityType<CreamerEntity> =
             Registry.register(
@@ -36,7 +55,7 @@ class CursedWeirdosMod : ModInitializer {
                         0.6f,
                         1.7f,
                     ).maxTrackingRange(8)
-                    .build(),
+                    .build(RegistryKey.of(RegistryKeys.ENTITY_TYPE, Identifier.of(modIdentifier, "creamer"))),
             )
 
         val imposterEntity: EntityType<ImposterEntity> =
@@ -49,7 +68,7 @@ class CursedWeirdosMod : ModInitializer {
                         1f,
                         1f,
                     ).maxTrackingRange(8)
-                    .build(),
+                    .build(RegistryKey.of(RegistryKeys.ENTITY_TYPE, Identifier.of(modIdentifier, "imposter"))),
             )
 
         @JvmStatic

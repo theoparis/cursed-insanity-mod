@@ -1,5 +1,6 @@
 {
   "extends": ["config:base", "group:allNonMajor"],
+  "versioning": "semver",
   "includeForks": true,
   "dependencyDashboard": true,
   "schedule": ["every weekend"]

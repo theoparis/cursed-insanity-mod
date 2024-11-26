@@ -27,22 +27,20 @@ project.group = group
 version = modVersion
 
 repositories {
-    maven("https://maven.fabricmc.net/") {
-        name = "Fabric"
-    }
+    maven("https://maven.fabricmc.net/")
     mavenLocal()
     mavenCentral()
     maven("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/")
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.21")
-    mappings("net.fabricmc:yarn:1.21.4-pre2+build.3:v2")
+    minecraft("com.mojang:minecraft:1.21.3")
+    mappings("net.fabricmc:yarn:1.21.3+build.2:v2")
 
     modImplementation("net.fabricmc:fabric-loader:0.16.9")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:0.110.0+1.21.4")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:0.110.0+1.21.3")
     modImplementation("net.fabricmc:fabric-language-kotlin:1.12.3+kotlin.2.0.21")
-    modImplementation("software.bernie.geckolib:geckolib-fabric-1.21:4.5.8")
+    modImplementation("software.bernie.geckolib:geckolib-fabric-1.21.3:4.7.1")
 }
 
 val fabricApiVersion = ""

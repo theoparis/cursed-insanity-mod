@@ -7,10 +7,8 @@ import com.theoparis.cw.registry.CursedSounds
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.entity.AreaEffectCloudEntity
-import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LightningEntity
-import net.minecraft.entity.SkinOverlayOwner
 import net.minecraft.entity.ai.goal.ActiveTargetGoal
 import net.minecraft.entity.ai.goal.FleeEntityGoal
 import net.minecraft.entity.ai.goal.LookAroundGoal
@@ -54,7 +52,6 @@ class CreamerEntity(
     world: World,
 ) : HostileEntity(entityType, world),
     IExplosiveEntity,
-    SkinOverlayOwner,
     GeoEntity {
     private var lastFuseTime = 0
     private var currentFuseTime = 0
@@ -63,10 +60,6 @@ class CreamerEntity(
     private var explosionRadius = 3
     private var headsDropped = 0
     private val animatableInstanceCache = GeckoLibUtil.createInstanceCache(this)
-
-    init {
-        ignoreCameraFrustum = true
-    }
 
     override fun initGoals() {
         goalSelector.add(1, SwimGoal(this))
@@ -177,13 +170,12 @@ class CreamerEntity(
 
         val entity = source.attacker
         if (entity !== this) {
-            this.dropItem(CursedWeirdosMod.cucummberItem)
+            this.dropItem(world, CursedWeirdosMod.cucummberItem)
         }
     }
 
-    override fun tryAttack(target: Entity): Boolean = true
-
-    override fun shouldRenderOverlay(): Boolean = dataTracker.get(chargedTracker) as Boolean
+    @Environment(EnvType.CLIENT)
+    fun shouldRenderOverlay(): Boolean = dataTracker.get(chargedTracker) as Boolean
 
     @Environment(EnvType.CLIENT)
     fun getClientFuseTime(timeDelta: Float): Float =
@@ -228,7 +220,7 @@ class CreamerEntity(
                 ) { _: Item ->
                 }
             }
-            ActionResult.success(world.isClient)
+            ActionResult.SUCCESS
         } else {
             super.interactMob(player, hand)
         }
@@ -237,7 +229,7 @@ class CreamerEntity(
     private fun explode() {
         if (!world.isClient) {
             val destructionType =
-                if (world.gameRules.getBoolean(GameRules.DO_MOB_GRIEFING)) {
+                if ((world as ServerWorld).gameRules.getBoolean(GameRules.DO_MOB_GRIEFING)) {
                     World.ExplosionSourceType.MOB
                 } else {
                     World.ExplosionSourceType.NONE
@@ -270,7 +262,7 @@ class CreamerEntity(
         }
     }
 
-    val ignited: Boolean
+    private val ignited: Boolean
         get() = dataTracker.get(ignitedTracker) as Boolean
 
     override fun ignite() {
@@ -282,8 +274,7 @@ class CreamerEntity(
         private var chargedTracker: TrackedData<Boolean>? = null
         private var ignitedTracker: TrackedData<Boolean>? = null
 
-        fun createAttributes(): DefaultAttributeContainer.Builder =
-            createHostileAttributes().add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25)
+        fun createAttributes(): DefaultAttributeContainer.Builder = createHostileAttributes().add(EntityAttributes.MOVEMENT_SPEED, 0.25)
 
         init {
             fuseSpeedTracker = DataTracker.registerData(CreamerEntity::class.java, TrackedDataHandlerRegistry.INTEGER)
