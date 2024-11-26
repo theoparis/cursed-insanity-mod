@@ -62,9 +62,10 @@ class ImposterEntity(
     ) {
         super.dropEquipment(world, source, causedByPlayer)
 
-        dropItem {
-            CursedWeirdosMod.totemOfLying
-        }
+        dropItem(
+            world,
+            CursedWeirdosMod.totemOfLying,
+        )
     }
 
     override fun getAnimatableInstanceCache(): AnimatableInstanceCache = animatableInstanceCache
@@ -78,7 +79,7 @@ class ImposterEntity(
     companion object {
         fun createAttributes(): DefaultAttributeContainer.Builder =
             createHostileAttributes()
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.35)
-                .add(EntityAttributes.GENERIC_MAX_HEALTH, 8.0)
+                .add(EntityAttributes.MOVEMENT_SPEED, 0.35)
+                .add(EntityAttributes.MAX_HEALTH, 8.0)
     }
 }
