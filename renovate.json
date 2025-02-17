@@ -1,8 +1,6 @@
 {
-  "versioning": "semver",
   "extends": [
-    "config:best-practices",
-    "group:allNonMajor"
+    "config:best-practices"
   ],
   "dependencyDashboard": true,
   "schedule": [
