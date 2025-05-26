@@ -38,7 +38,7 @@ dependencies {
     mappings("net.fabricmc:yarn:1.21.3+build.2:v2")
 
     modImplementation("net.fabricmc:fabric-loader:0.16.14")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:0.110.0+1.21.3")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:0.125.0+1.21.6")
     modImplementation("net.fabricmc:fabric-language-kotlin:1.13.3+kotlin.2.1.21")
     modImplementation("software.bernie.geckolib:geckolib-fabric-1.21.3:4.7.2")
 }
