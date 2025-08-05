@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: gradle:jdk24-alpine@sha256:74bfafd694dca47440b22d3c41d6b98a9d15c09d0befbb065a1d9d883cd3a224
+      - image: gradle:jdk24-alpine@sha256:6906385d1caa06a4e72397ca0c9621ab1a4d2bb2ee68100b8eb8e38785c0f8d4
     steps:
       - checkout
       - run: gradle build
