@@ -1,13 +1,13 @@
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "2.0.21"
-    id("fabric-loom") version "1.10.5"
+    kotlin("jvm") version "2.2.0"
+    id("fabric-loom") version "1.11.4"
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_22
-    targetCompatibility = JavaVersion.VERSION_22
+    sourceCompatibility = JavaVersion.VERSION_24
+    targetCompatibility = JavaVersion.VERSION_24
 }
 
 // load props from parent project
@@ -38,7 +38,7 @@ dependencies {
     mappings("net.fabricmc:yarn:1.21.3+build.2:v2")
 
     modImplementation("net.fabricmc:fabric-loader:0.16.14")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:0.125.3+1.21.6")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:0.114.1+1.21.3")
     modImplementation("net.fabricmc:fabric-language-kotlin:1.13.3+kotlin.2.1.21")
     modImplementation("software.bernie.geckolib:geckolib-fabric-1.21.3:4.7.2")
 }
