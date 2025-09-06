@@ -2,7 +2,7 @@ import java.util.Properties
 
 plugins {
     kotlin("jvm") version "2.2.10"
-    id("fabric-loom") version "1.11.7"
+    id("fabric-loom") version "1.11.8"
 }
 
 java {
