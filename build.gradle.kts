@@ -39,7 +39,7 @@ dependencies {
 
     modImplementation("net.fabricmc:fabric-loader:0.17.2")
     modImplementation("net.fabricmc.fabric-api:fabric-api:0.133.4+1.21.9")
-    modImplementation("net.fabricmc:fabric-language-kotlin:1.13.5+kotlin.2.2.10")
+    modImplementation("net.fabricmc:fabric-language-kotlin:1.13.6+kotlin.2.2.20")
     modImplementation("software.bernie.geckolib:geckolib-fabric-1.21.3:4.7.2")
 }
 
